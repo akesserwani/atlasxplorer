@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %} 
+
+
+<!--Navbar-->
+<div class = "w-full h-[20vh] bg-slate-100 flex flex-col">
+    <!--Logo image-->
+    <img src="{% static 'logo.png' %}" class = "w-3/4 sm:w-1/2 lg:w-1/4 ml-4">
+</div>
+
+<!--Main Container - White box -->
+<div class = "flex flex-col w-2/3 md:w-1/2 ml-auto mr-auto border-2 bg-white rounded-lg">
+
+    <div class = "w-full h-16 flex flex-col items-center md:items-start align-middle">
+        <h class = "text-gray-500 font-bold text-3xl mt-8 md:ml-14">Create Account</h>
+    </div>
+
+    <!--form tag-->
+    <form method = "POST">
+        {% csrf_token %}
+        <div class = "flex justify-center flex-col md:flex-row">
+            <!--Box 1 - Left-side desktop, top-side mobile -->
+            <div class = "w-full md:w-1/2 h-[30vh] flex justify-center align-middle">
+                <!--Div content-->
+                <div class = "flex flex-col w-2/3 gap-10 mt-12">
+                    <!--Enter Email-->
+                    {{ form.email }}
+                    <!--Enter Username-->
+                    {{ form.username }}
+                </div>
+            </div>
+
+            <!--Box 2 -Right-side desktop, Bottom-side mobile -->
+            <div class = "w-full md:w-1/2 h-[30vh] flex justify-center align-middle">
+                <!--Div content-->
+                <div class = "flex flex-col w-2/3 gap-10 md:mt-12 ">
+                    <!--Enter password-->
+                    {{ form.password1 }}
+                    <!--confirm password-->
+                    {{ form.password2 }}
+                    
+                </div>
+            </div>
+        </div>
+        <!--bottom portion with create account bottom-->
+        <div class = "w-full flex flex-col align-middle items-center gap-4 p-4">
+
+            <!--Error messages-->
+            {% if form.errors.email %}
+                <p class = "text-center text-lg text-gray-500">{{  form.errors.email }}</p>
+            {% endif %}
+            {% if form.errors.username %}
+                <p class = "text-center text-lg text-gray-500">{{  form.errors.username }}</p>
+            {% endif %}
+            {% if form.errors.password1 %}
+                <p class = "text-center text-lg text-gray-500">{{  form.errors.password1 }}</p>
+            {% endif %}
+            {% if form.errors.password2 %}
+                <p class = "text-center text-lg text-gray-500">{{  form.errors.password2 }}</p>
+            {% endif %}
+            
+            <!--Submit Button-->
+            <button type="submit" class="active:scale-95 w-1/2 h-16 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 transition-all text-lg">
+                Create Account
+            </button>
+            <!--Already have account text-->
+            <h class = "text-gray-500 font-bold text-xl text-center">
+                Already have an account?
+                <br>
+                <a href = "{% url 'login' %}" class = "text-blue-400">Log In</a>
+            </h>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}

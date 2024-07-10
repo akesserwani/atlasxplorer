@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--Include Navbar-->
+{% include 'shared/nav.html' %}
+
+<!--Main Content-->
+
+  <!--Main Container Body-->
+  <div class = "w-full flex justify-center flex-col md:flex-row p-10 gap-4">
+    <!--Left Box - Top-->
+    <!--My Maps-->
+    <div class = "w-full md:w-1/2 h-[65vh] flex flex-col justify-center align-middle bg-white border-2 rounded-lg">
+        <!--Header-->
+        <div class = "w-full flex flex-col h-1/5">
+            <div class = "w-full flex flex-row justify-between p-10">
+                <h class = "text-2xl font-bold text-gray-500">Map 1</h>
+                <span class="text-gray-500 hover:text-blue-400 text-3xl hover:cursor-pointer active:scale-95"><i class="bi-pencil"></i></span>
+            </div>
+            <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
+        </div>
+            <!-- number of pins on map -->
+            <p class = "text-base text-gray-400 ml-10">22 pins</p>
+
+            <!--Container for entries-->
+            <div class = "w-full h-3/4 p-6 flex flex-col gap-6 overflow-auto"
+            x-data="{ pins: [
+                { name: 'West Coast USA'},
+                { name: 'West Coas US'},
+                { name: 'West Cst US'},
+                { name: 'West st US'},
+                { name: 'West US'},
+                { name: 'Westst US'},
+
+
+            ]}">
+                <!--entry box-->
+                <template x-for="pin in pins" :key="pin.name">
+                    <div class = "w-full border flex flex-row flex-wrap justify-between h-1/4 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
+                        <h class = "text-lg font-bold text-gray-500" x-text="pin.name"></h>
+                        <span class="text-blue-400 hover:text-blue-500 text-3xl hover:cursor-pointer active:scale-95"><i class="bi-info-circle-fill"></i></span>
+                    </div>
+                </template>
+            </div>
+    </div>
+
+    <!--Right Box - Bottom-->
+    <!--Saved Maps-->
+    <div class = "w-full md:w-1/2 h-[65vh] flex flex-col bg-white border-2 rounded-lg">
+        <!--Search Bar Container with share button -->
+        <div class = "w-full h-1/6 flex flex-row justify-between items-center align-middle gap-5">
+            <!--Search Bar-->
+            <div class = "w-2/3 h-2/3 flex flex-row ml-4">
+                <!--Input Form-->
+                <input class="border-gray-300 border-r-0 rounded-l-lg w-5/6 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" id="map_name" type="text" placeholder="Search Map">
+                <!--Search Button-->
+                <button class = "w-1/6 h-full bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-r-lg active:scale-95">
+                    <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-search"></i></span>
+                </button>
+            </div>
+
+            <!--Share Button-->
+            <button class = "w-20 h-2/3 mr-4 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+                <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-share-fill"></i></span>
+            </button>
+        </div>
+
+        <!--Map Container-->
+        <div class = "w-full h-4/5 p-4">
+            <!--Map-->
+            <div class = "w-full h-full bg-blue-400 rounded-lg">
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!--Modal for creating new map-->
+<!--Div to wrap button with add button-->
+<div x-data="{NewPointmodalIsOpen: false}">
+    <!--Button Box on Bottom-->
+    <div class = "w-full h-32 fixed left-0 bottom-0">
+        <!--Right Button - Create map -->
+        <button @click="NewPointmodalIsOpen = true" class = "aspect-square w-20 h-20 rounded-xl float-right mr-16 bg-blue-400 border-blue-600 shadow hover:bg-blue-500 active:scale-95">
+            <span class="text-white text-6xl"><i class="bi-plus"></i></span>
+        </button>
+    </div>
+
+    <!--Modal to create map-->
+    <!--Opacity Layer-->
+    <div x-cloak x-show="NewPointmodalIsOpen" @click.self="NewPointmodalIsOpen = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
+        <!--Modal Dialogue layer-->
+        <div x-show="NewPointmodalIsOpen" class = "w-4/5 md:w-1/2 h-1/2 flex flex-col align-middle items-center gap-4 rounded-xl border-2 bg-white">
+            <div class = " h-full w-[90%]">
+                <!--Title and exit button-->
+                <div class = "flex flex-row justify-between p-8">
+                    <!--Title-->
+                    <h class = "text-2xl md:text-3xl text-gray-500 font-bold">Create New Map</h>
+                    <!--Exit Button-->
+                    <button class = "active:scale-90" @click="NewPointmodalIsOpen = false">
+                        <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
+                    </button>
+                </div>
+                <!--Main modal content-->
+                <div class = "w-full h-auto flex flex-col pl-8 pr-4 gap-4">
+
+                    <!--Create Button-->
+                    <button type="button" class="active:scale-95 w-full h-12 mt-4 xl:mt-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
+                        Create Point
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,49 @@
+<!--Navbar-->
+{% load static %} 
+<nav x-data="{ mobileMenuIsOpen: false }" @click.away="mobileMenuIsOpen = false">
+    <div class = "w-full h-[20vh] flex flex-row align-middle justify-between bg-white shadow">
+        <!--Logo with image-->
+        <div class = "w-1/2 md:3/4 flex flex-col justify-center align-middle md:ml-8">
+            <img src="{% static 'logo.png' %}" class="w-full md:w-1/2 lg:w-1/3">
+        </div>    
+        <!--Navigation items-->
+        <div class = "w-1/2 md:w-1/3 xl:w-1/4 flex flex-row">
+            <!--Icons - hide for mobile and make hamburger menu size <md> -->
+            <div class = "hidden text-4xl text-gray-500 w-full md:flex flex-row align-middle items-center gap-10 lg:gap-12 xl:gap-14 ">
+                <!--Home Icon-->
+                <a class = "active:scale-90" href="{% url 'main-home' %}" > 
+                    <span class="hover:text-blue-400 hover:cursor-pointer {% if request.path == '/' %} text-blue-500 text-5xl {% endif %} "><i class="bi-house"></i></span>
+                </a>
+                <!--Search Icon-->
+                <a class = "active:scale-90" href="{% url 'main-search' %}" > 
+                    <span class="hover:text-blue-400 hover:cursor-pointer {% if request.path == '/search/' %} text-blue-500 text-5xl {% endif %}"><i class="bi-search"></i></span>
+                </a>
+                <!--Settings Icon-->
+                <a class = "active:scale-90" href="{% url 'main-settings' %}" > 
+                    <span class="hover:text-blue-400 hover:cursor-pointer {% if request.path == '/settings/' %} text-blue-500 text-5xl {% endif %}"><i class="bi-gear"></i></span>
+                </a>
+                <!--Log out Icon-->
+                <a class = "active:scale-90" href="{% url 'logout' %}">
+                    <span class="hover:text-blue-400 hover:cursor-pointer"><i class="bi-box-arrow-right"></i></span>
+                </a>
+            </div>
+
+            <!--Hamburger Icon - show when in mobile view size <md> -->
+            <div class = "text-5xl text-gray-500 w-full flex md:hidden flex-col items-end mr-8 justify-center">
+                <button @click="mobileMenuIsOpen = !mobileMenuIsOpen" class = "active:scale-90">
+                    <span class="hover:text-blue-400 hover:cursor-pointer"><i class="bi-list"></i></span>
+                </button>
+            </div>
+
+        </div>
+    </div>    
+
+    <!-- Mobile Menu -->
+	<ul x-cloak x-show="mobileMenuIsOpen" class="fixed max-h-svh overflow-y-auto inset-x-0 top-0 z-10 flex flex-col divide-y text-2xl text-gray-500 divide-slate-300 rounded-b-xl border-b border-slate-300 bg-slate-100 px-6 pb-6 pt-20   md:hidden">
+		<li class="py-4"><a href="{% url 'main-home' %}" class="w-full active:scale-95 {% if request.path == '/' %} text-blue-500 text-3xl {% endif %} ">Home</a></li>
+		<li class="py-4"><a href="{% url 'main-search' %}" class="w-full active:scale-95 {% if request.path == '/search/' %} text-blue-500 text-3xl {% endif %}">Search</a></li>
+		<li class="py-4"><a href="{% url 'main-settings' %}" class="w-full active:scale-95 {% if request.path == '/settings/' %} text-blue-500 text-3xl {% endif %}">Settings</a></li>
+		<li class="py-4"><a href="{% url 'logout' %}" class="w-full active:scale-95 text-blue-500 text-3xl">Logout</a></li>
+	</ul>
+
+</nav>

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--Include Navbar-->
+{% include 'shared/nav.html' %}
+
+<!--Main container div-->
+<div class = "w-full h-full flex flex-col">
+        
+    <!--Div with search results-->
+    <div class = "flex flex-col w-4/5 md:w-1/2 gap-6 ml-auto mr-auto bg-white p-8 mt-10 border-2 rounded-lg items-center align-middle">
+        <!--Search Bar-->
+        <div class = "w-full h-2/3 flex flex-row ml-4">
+            <!--Input Form-->
+            <input class="border-gray-300 border-r-0 rounded-l-lg w-5/6 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" id="map_name" type="text" placeholder="Search Users">
+            <!--Search Button-->
+            <button class = "w-1/6 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-r-lg active:scale-95 relative right-1">
+                <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-search"></i></span>
+            </button>
+        </div>
+        
+        <!--number of results for input-->
+        <div class = "w-full relative bottom-2 pl-4">
+            <h1 class = "text-gray-500 text-base">Results for account: bob123456</h1>
+        </div>
+
+        <!--Container with search results-->
+        <div class = "w-full h-auto flex flex-col gap-4 text-gray-500 text-lg overflow-auto"
+            x-data="{ users: [
+                { id: 1, name: 'User 1' },
+                { id: 2, name: 'User 2' },
+                { id: 3, name: 'User 3' },
+                { id: 4, name: 'User 4' },
+                { id: 5, name: 'User 5' },
+                { id: 6, name: 'User 6' },
+                { id: 7, name: 'User 7' },
+                { id: 8, name: 'User 1' },
+                { id: 9, name: 'User 1' },
+
+            ]}">
+            <!--User from search-->
+            <template x-for="user in users" :key="user.id">
+                <div class = "w-full p-4 hover:bg-gray-100 cursor-pointer rounded-lg active:scale-95">
+                    <h1 class = "text-lg font-bold text-gray-500" x-text="user.name"></h1>
+                </div>
+            </template>
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock content %}

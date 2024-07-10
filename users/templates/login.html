@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %} 
+
+{% load widget_tweaks %}
+
+<!--Navbar-->
+<div class = "w-full h-[20vh] flex flex-col">
+    <!--Logo image-->
+    <img src="{% static 'logo.png' %}" class = "w-3/4 sm:w-1/2 lg:w-1/4 ml-4">
+</div>
+
+<form method = "POST">
+    {% csrf_token %}
+    <!--Main container-->
+    <div class = "flex flex-col w-2/3 md:w-1/2 gap-10 ml-auto mr-auto bg-white p-8 md:p-16 border-2 rounded-lg">
+        <h class = "text-gray-500 font-bold text-3xl">Log In</h>
+        <!--Enter username-->
+        {% render_field form.username class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Username" %}
+
+        <!--Enter Password-->
+        {% render_field form.password class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Password" %}
+
+        <!--Errors-->
+        {% if form.errors %}
+            {{ form.non_field_errors }}
+        {% endif %}
+
+
+        <!--Submit Button-->
+        <button type="submit" class="active:scale-95 w-full h-16 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 transition-all text-lg">
+            Log In
+        </button>
+
+        <!--Already have account text-->
+        <h class = "text-gray-500 font-bold text-xl text-center">
+            Don't have an account?
+            <br>
+            <a href = "{% url 'register' %}" class = "text-blue-400">Create Account</a>
+        </h>
+    </div>
+</form>
+
+{% endblock content %}
