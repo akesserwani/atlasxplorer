@@ -5,6 +5,8 @@
 <!--Include Navbar-->
 {% include 'shared/nav.html' %}
 
+{% load widget_tweaks %}
+
 <!--Main Content-->
 
   <!--Main Container Body-->
@@ -12,36 +14,100 @@
     <!--Left Box - Top-->
     <!--My Maps-->
     <div class = "w-full md:w-1/2 h-[65vh] flex flex-col justify-center align-middle bg-white border-2 rounded-lg">
+        <!--Current User Being shown-->
+        <p1 class = "ml-10 mt-3 text-gray-400 text-base">{{ general_user.username }}'s maps</p1>
+
         <!--Header-->
         <div class = "w-full flex flex-col h-1/5">
             <div class = "w-full flex flex-row justify-between p-10">
-                <h class = "text-2xl font-bold text-gray-500">Map 1</h>
-                <span class="text-gray-500 hover:text-blue-400 text-3xl hover:cursor-pointer active:scale-95"><i class="bi-pencil"></i></span>
-            </div>
-            <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
+                
+                <!--Name of map-->
+                <h class = "text-2xl font-bold text-gray-500">{{ usermap.name }}</h>
+
+                <!--Private Toggle and Edit Button only shown if the current user is logged in-->
+                {% if general_user.username == current_user %}
+                <!--Public/Private Button and Edit button-->
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class = "flex flex-row gap-4">
+                        {% if usermap.private == True %}
+                            <button type="submit" name = "togglePrivate" >
+                                <span class="text-gray-500 text-3xl hover:cursor-pointer"><i class="bi-eye-slash-fill"></i></span>
+                            </button>
+                        {% else %}
+                            <!--Eye icon does not have slash if private is false meaning it is public-->
+                            <button type="submit" name = "togglePrivate" >
+                                <span class="text-gray-500 text-3xl hover:cursor-pointer"><i class="bi-eye-fill"></i></span>
+                            </button>
+                        {% endif %}
+
+                    <!--Edit Button and its respective modal-->
+                    <div x-data="{EditMapModelIsOpen: false}">
+                        <!--Edit Button-->
+                        <button type = "button" @click ="EditMapModelIsOpen = true" >
+                            <span class="text-gray-500 hover:text-blue-400 text-3xl hover:cursor-pointer active:scale-95"><i class="bi-pencil"></i></span>
+                        </button>
+                        <!--Modal to create map-->
+                        <!--Opacity Layer-->
+                        <div x-cloak x-show="EditMapModelIsOpen" @click.self="EditMapModelIsOpen = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
+                            <!--Modal Dialogue layer-->
+                            <div x-show="EditMapModelIsOpen" class = "w-4/5 md:w-1/2 h-1/2 flex flex-col align-middle items-center gap-4 rounded-xl border-2 bg-white">
+                                <div class = " h-full w-[90%]">
+                                    <!--Title and exit button-->
+                                    <div class = "flex flex-row justify-between p-8">
+                                        <!--Title-->
+                                        <h class = "text-2xl md:text-3xl text-gray-500 font-bold">Edit Map: {{ usermap.name }}</h>
+                                        <!--Exit Button-->
+                                        <button class = "active:scale-90" @click="EditMapModelIsOpen = false">
+                                            <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
+                                        </button>
+                                    </div>
+                                    <!--Main modal content-->
+                                    <div class = "w-full h-full flex flex-col pl-8 pr-4 pb-8 gap-2">
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            <!--Input to Update name-->
+                                            {% render_field update_map_form.name class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Map Name" %}
+                                            <!--Submit Button-->
+                                            <button type="submit" name = "updateMap" class="active:scale-95 w-full h-12 mt-4 xl:mt-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
+                                                Update Map Name
+                                            </button>            
+
+                                            <!--Delete Map Button-->
+                                            <button type="submit" name = "deleteMap" class="active:scale-95 w-full h-12 mt-2 xl:mt-12 rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-lg">
+                                                Delete Map
+                                            </button>            
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
         </div>
+        
+        <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
+    </div>
             <!-- number of pins on map -->
-            <p class = "text-base text-gray-400 ml-10">22 pins</p>
+            <p class = "text-base text-gray-400 ml-10">{{ pins_all.count }} pins</p>
 
             <!--Container for entries-->
-            <div class = "w-full h-3/4 p-6 flex flex-col gap-6 overflow-auto"
-            x-data="{ pins: [
-                { name: 'West Coast USA'},
-                { name: 'West Coas US'},
-                { name: 'West Cst US'},
-                { name: 'West st US'},
-                { name: 'West US'},
-                { name: 'Westst US'},
-
-
-            ]}">
+            <div class = "w-full h-3/4 p-6 flex flex-col gap-6 overflow-auto">
                 <!--entry box-->
-                <template x-for="pin in pins" :key="pin.name">
-                    <div class = "w-full border flex flex-row flex-wrap justify-between h-1/4 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
-                        <h class = "text-lg font-bold text-gray-500" x-text="pin.name"></h>
-                        <span class="text-blue-400 hover:text-blue-500 text-3xl hover:cursor-pointer active:scale-95"><i class="bi-info-circle-fill"></i></span>
+                {% for pin in pins %}
+                <a href="{% url 'main-pin' general_user pin.usermap.name pin.name %}" class="w-full">
+                    <div class = "w-full border flex flex-row flex-wrap justify-between h-full p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
+                        <h class = "text-lg font-bold text-gray-500">{{ pin.name }}</h>
                     </div>
-                </template>
+                </a>
+                {% endfor %}
+            <!--If there are no maps, print no maps-->
+            {% if pins_all.count == 0 %}
+                <h1 class = "text-xl text-gray-400 font-bold text-center">No Pins Created</h1>
+            {% endif %}
+
             </div>
     </div>
 
@@ -79,44 +145,72 @@
 </div>
 
 
-<!--Modal for creating new map-->
-<!--Div to wrap button with add button-->
-<div x-data="{NewPointmodalIsOpen: false}">
-    <!--Button Box on Bottom-->
-    <div class = "w-full h-32 fixed left-0 bottom-0">
-        <!--Right Button - Create map -->
-        <button @click="NewPointmodalIsOpen = true" class = "aspect-square w-20 h-20 rounded-xl float-right mr-16 bg-blue-400 border-blue-600 shadow hover:bg-blue-500 active:scale-95">
-            <span class="text-white text-6xl"><i class="bi-plus"></i></span>
-        </button>
-    </div>
+{% if general_user.username == current_user %}
+<!--Only show if the current user is logged in-->
 
-    <!--Modal to create map-->
-    <!--Opacity Layer-->
-    <div x-cloak x-show="NewPointmodalIsOpen" @click.self="NewPointmodalIsOpen = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
-        <!--Modal Dialogue layer-->
-        <div x-show="NewPointmodalIsOpen" class = "w-4/5 md:w-1/2 h-1/2 flex flex-col align-middle items-center gap-4 rounded-xl border-2 bg-white">
-            <div class = " h-full w-[90%]">
-                <!--Title and exit button-->
-                <div class = "flex flex-row justify-between p-8">
-                    <!--Title-->
-                    <h class = "text-2xl md:text-3xl text-gray-500 font-bold">Create New Map</h>
-                    <!--Exit Button-->
-                    <button class = "active:scale-90" @click="NewPointmodalIsOpen = false">
-                        <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
-                    </button>
-                </div>
-                <!--Main modal content-->
-                <div class = "w-full h-auto flex flex-col pl-8 pr-4 gap-4">
+    <!--Modal for creating new map-->
+    <!--Div to wrap button with add button-->
+    <div x-data="{NewPointmodalIsOpen: false}">
+        <!--Button Box on Bottom-->
+        <div class = "w-full h-32 fixed left-0 bottom-0">
+            <!--Right Button - Create map -->
+            <button @click="NewPointmodalIsOpen = true" class = "aspect-square w-20 h-20 rounded-xl float-right mr-16 bg-blue-400 border-blue-600 shadow hover:bg-blue-500 active:scale-95">
+                <span class="text-white text-6xl"><i class="bi-plus"></i></span>
+            </button>
+        </div>
 
-                    <!--Create Button-->
-                    <button type="button" class="active:scale-95 w-full h-12 mt-4 xl:mt-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
-                        Create Point
-                    </button>
+        <!--Modal to create map-->
+        <!--Opacity Layer-->
+        <div x-cloak x-show="NewPointmodalIsOpen" @click.self="NewPointmodalIsOpen = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
+            <!--Modal Dialogue layer-->
+            <div x-show="NewPointmodalIsOpen" class = "w-full md:w-11/12 5 h-5/6 flex flex-col align-middle items-center rounded-xl border-2 bg-white overflow-auto">
+                <div class = " h-full w-[90%]">
+                    <!--Title and exit button-->
+                    <div class = "flex flex-row justify-between p-4">
+                        <!--Title-->
+                        <h class = "text-2xl md:text-3xl text-gray-500 font-bold mt-4 mr-2">Create New Pin</h>
+                        <!--Exit Button-->
+                        <button class = "active:scale-90" @click="NewPointmodalIsOpen = false">
+                            <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
+                        </button>
+                    </div>
+                    <!--Main modal content-->
+                    <div class = "w-full h-auto flex justify-center flex-col md:flex-row gap-4">
+                        <!--Left box with context-->
+                        <div class = "w-full md:w-1/2 h-[70vh] flex flex-col align-middle justify-center">
+                            <!--Move Pin Button, Enter Coordinates Button-->
+                            <form method="POST" class = "flex flex-col gap-8">
+                                {% csrf_token %}
+                                <!--Name Form-->
+                                {% render_field create_pin_form.name class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Pin Name" %}
+                            
+                                <div class = "h-16 flex flex-row gap-2">
+                                    {% render_field create_pin_form.lat class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Latitude" %}
+                                    {% render_field create_pin_form.long class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Longitude" %}
+                                </div>
+
+                                <!--Notes Text area-->
+                                {% render_field create_pin_form.notes class="border-gray-300 border-2 rounded-lg w-full h-36 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Notes" %}
+
+                                <!--Create Button-->
+                                <button type="submit" name = "create_pin_btn" class="active:scale-95 w-full h-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
+                                    Create Point
+                                </button>
+                            </form>
+                        </div>
+                        <!--Right box with map-->
+                        <div class = "w-full md:w-1/2 h-[70vh] flex flex-col justify-center align-middle">
+                            <!--Map container-->
+                            <div class = "w-full h-2/3 bg-blue-400 rounded-lg">
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+{% endif %}
 
 {% endblock content %}

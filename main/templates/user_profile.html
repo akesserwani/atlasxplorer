@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--Include Navbar-->
+{% include 'shared/nav.html' %}
+
+{% load widget_tweaks %}
+
+
+<!--Main Container Body-->
+<div class = "w-full p-16">
+    <!--Main container-->
+    <div class = "w-full md:w-3/4 h-[60vh] flex flex-col align-middle ml-auto mr-auto bg-white border-2 rounded-lg overflow-auto">
+        <!--Users username and number of maps-->
+        <div class = "flex flex-row justify-between p-8">
+            <h1 class = "text-gray-500 text-xl md:text-3xl font-bold">{{ user }} </h1>
+            <p1 class = "text-gray-500 text-sm md:text-lg mt-1 mr-1">Maps: {{ public_maps_count }} </p1>
+        </div>
+        <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto">
+
+        <!--Container with maps-->
+        <div class = "w-full h-full flex flex-col gap-4 overflow-auto p-8">
+            <!--entry box-->
+            {% for map in user_maps.all %}
+                <!--Only show map if it is not private-->
+                {% if not map.private %}
+                <a href = "{% url 'main-map' user.username map.name %}" class = "w-full">
+                    <div class = "w-full border flex flex-row flex-wrap justify-between h-16 p-4 rounded-lg shadow bg-white hover:bg-gray-100 hover:cursor-pointer active:scale-95">
+                        <h class = "text-lg font-bold text-gray-500">{{ map.name }}</h>
+                        <!--number of pins text-->
+                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins</p>
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            <!--If there are no maps, print no maps-->
+            {% if public_maps_count == 0 %}
+                <h1 class = "text-xl text-gray-400 font-bold text-center">User has no maps</h1>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

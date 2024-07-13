@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--Include Navbar-->
+{% include 'shared/nav.html' %}
+
+{% load widget_tweaks %}
+
+
+<!--Main Container Body-->
+<div class = "w-full flex justify-center flex-col md:flex-row p-10 gap-4">
+    <!--Left Box with data-->
+    <div class = "w-full md:w-1/2 h-[65vh] flex flex-col align-middle bg-white border-2 rounded-lg overflow-auto">
+
+        <!--Name of the Map and return button-->
+        <div class = "flex flex-row gap-4 w-full mt-6 ml-4">
+            <a href = "{% url 'main-map' general_user usermap.name %}">                    
+                <span class="text-gray-400 text-3xl hover:cursor-pointer"><i class="bi-chevron-left"></i></span>
+            </a>
+            <h1 class = "text-gray-400 text-2xl">{{ usermap.name }}</h1>
+        </div>
+        <!--Top box with pin name and edit button-->
+        <div class = "w-full h-20 flex flex-row justify-between">
+            <!--Pin Name-->
+            <h1 class = "text-gray-500 font-bold text-3xl m-6">{{ pin.name }}</h1>
+
+            <!--Hide the Edit Button if it does not belong to current user-->
+            {% if general_user.username == current_user %}
+            <!--Edit Button-->
+            <a href = "{% url 'main-pin' general_user pin.usermap.name pin.name %}/edit" class = "mr-6 mt-6 w-16 h-16">
+                <button type = "button" name = "editPinBtn" class = "w-full h-full bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+                    <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-pencil-fill"></i></span>
+                </button>
+            </a>
+            {% endif %}
+
+        </div>
+        <!--Coordinates-->
+        <div class = "flex flex-row justify-between">
+            <div class = "flex flex-col gap-2 m-6">
+                <h1 class = "text-gray-500 font-bold text-2xl">Coordinates:</h1>
+                <p1 class = "text-gray-500 font-medium text-xl">{{ pin.lat }}, {{ pin.long }}</p1>    
+            </div>    
+            <!--Google Earth Button-->
+            <button name = "editPinBtn" class = "mr-6 mt-6 w-16 h-16 aspect-square bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+                <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-google"></i></span>
+            </button>
+
+        </div>
+
+        <!--Notes-->
+        <div class = "flex flex-col gap-2 m-6">
+            <h1 class = "text-gray-500 font-bold text-2xl">Notes</h1>
+            <p1 class = "text-gray-500 font-medium text-xl">{{ pin.notes }} </p1>    
+        </div>
+
+        <!--Google Earth Button-->
+
+    </div>
+
+    <!--Right Box with map-->
+    <div class = "w-full md:w-1/2 h-[65vh] flex flex-col justify-center align-middle bg-white border-2 rounded-lg p-4">
+        <!--Map Container-->
+        <div class = "w-full h-full bg-blue-400 rounded-lg">
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

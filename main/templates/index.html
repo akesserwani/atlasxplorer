@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% load widget_tweaks %}
+
 <!--Include Navbar-->
 {% include 'shared/nav.html' %}
 
@@ -16,29 +18,40 @@
         <div class = "w-full flex flex-col">
             <div class = "w-full flex flex-row justify-between p-10">
                 <h class = "text-2xl font-bold text-gray-500">My Maps</h>
-                <p class = "text-base text-gray-600 mt-2">22 maps</p>
+                <p class = "text-base text-gray-600 mt-2">{{ user.usermap.all.count }} maps</p>
             </div>
             <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
         </div>
 
-            <!--Container for entries-->
-            <div class = "w-full h-3/4 p-10 flex flex-col gap-6 justify-center align-middle overflow-auto relative bottom-8"
-            x-data="{ places: [
-                { name: 'West Coast USA', pins: 121 },
-                { name: 'Middle East - Lebanon', pins: 151 },
-                { name: 'North Africa - Morocco', pins: 22 },
-                { name: 'North Afria - Morocco', pins: 22 },
-                { name: 'North Afca - Morocco', pins: 22 },
-
-            ]}"><br><br><br><br>
-                <!--entry box-->
-                <template x-for="place in places" :key="place.name">
-                    <div class = "w-full border flex flex-row flex-wrap justify-between h-1/4 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
-                        <h class = "text-lg font-bold text-gray-500" x-text="place.name"></h>
-                        <p class = "text-base text-gray-400" x-text="place.pins + ' pins'"></p>
+        <!--Container for entries-->
+        <div class = "w-full h-3/4 p-6 flex flex-col gap-4 items-center align-middle overflow-auto mb-4">
+            <!--entry box-->
+            {% for map in user.usermap.all %}
+            <!--Link to access map-->
+            <a href = "{% url 'main-map' username=current_user map_name=map.name %}" class = "w-full">
+                <div class = "w-full border flex flex-row flex-wrap justify-between h-16 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
+                    <h class = "text-lg font-bold text-gray-500">{{ map.name }}</h>
+                    <!--Div with number of pins and private/public icon-->
+                    <div class = "flex flex-row gap-4">
+                        <!--Eye icon has slash if private is true-->
+                        {% if map.private == True %}
+                            <span class="text-gray-400 hover:cursor-pointer"><i class="bi-eye-slash-fill"></i></span>
+                        {% else %}
+                            <!--Eye icon does not have slash if private is false meaning it is public-->
+                            <span class="text-gray-400 hover:cursor-pointer"><i class="bi-eye-fill"></i></span>
+                        {% endif %}
+                        <!--number of pins text-->
+                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins</p>
                     </div>
-                </template>
-            </div>
+                </div>
+            </a>
+            {% endfor %}
+
+            <!--If there are no maps, print no maps-->
+            {% if user.usermap.all.count == 0 %}
+                <h1 class = "text-xl text-gray-400 font-bold">No Maps Created</h1>
+            {% endif %}
+        </div>
     </div>
 
     <!--Right Box - Bottom-->
@@ -54,14 +67,14 @@
         </div>
 
             <!--Container for entries-->
-            <div class = "w-full h-3/4 p-10 flex flex-col gap-6 justify-center align-middle overflow-auto relative bottom-8"
-            x-data="{ places: [
+            <div class = "w-full h-3/4 p-6 flex flex-col gap-4 items-center align-middle overflow-auto mb-4"
+                x-data="{ places: [
                 { name: 'West Coast USA', pins: 121 },
                 { name: 'Middle East - Lebanon', pins: 151 },
                 { name: 'North Africa - Morocco', pins: 22 },
                 { name: 'North Afria - Morocco', pins: 22 },
                 { name: 'North Afca - Morocco', pins: 22 },
-            ]}"><br><br><br><br>
+            ]}">
                 <!--entry box-->
                 <template x-for="place in places" :key="place.name">
                     <div class = "w-full border flex flex-row flex-wrap justify-between h-1/4 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
@@ -101,32 +114,23 @@
                     </button>
                 </div>
                 <!--Main modal content-->
-                <div class = "w-full h-auto flex flex-col pl-8 pr-4 gap-4">
-                    <!--input for map name-->
-                    <input class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" id="map_name" type="text" placeholder="Map Name">
-                    <!--Selection boxes for making map public or private-->
-                    <div x-data="{ selected: 'public' }" class = "flex flex-col gap-6 mt-6 ml-2">
-                        <!-- Public checkbox -->
-                        <label>
-                            <input type="checkbox" 
-                                x-bind:checked="selected === 'public'"
-                                @click="selected = selected === 'public' ? '' : 'public'">
-                                <span class = "text-gray-600 ml-2">Public Map</span>
-                        </label>
-                    
-                        <!-- Private checkbox -->
-                        <label>
-                            <input type="checkbox" 
-                                x-bind:checked="selected === 'private'"
-                                @click="selected = selected === 'private' ? '' : 'private'">
-                                <span class = "text-gray-600 ml-2">Private Map</span>
-                        </label>
+                <form method = "POST">
+                    {% csrf_token %}
+                    <div class = "w-full h-full flex flex-col pl-8 pr-4 gap-4">
+                            <!--input for map name-->
+                            {% render_field form.name class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Map Name" %}
+                            <!--Selection boxes for making map public or private-->
+                            <label>
+                                <!--Bypass form to submit if false-->
+                                {% render_field form.private  %}
+                                <span class = "text-gray-600 ml-2">Make Map Private (You may change this later)</span>
+                            </label>
+                        <!--Create Button-->
+                        <button type="submit" class="active:scale-95 w-full h-12 mt-4 xl:mt-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
+                            Create Map
+                        </button>
                     </div>
-                    <!--Create Button-->
-                    <button type="button" class="active:scale-95 w-full h-12 mt-4 xl:mt-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
-                        Create Map
-                    </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>

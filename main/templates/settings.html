@@ -5,20 +5,28 @@
 <!--Include Navbar-->
 {% include 'shared/nav.html' %}
 
-<div class = "flex flex-col w-4/5 md:w-2/3 gap-10 ml-auto mr-auto bg-white p-8 md:p-16 mt-10 border-2 rounded-lg items-center align-middle">
-        
+<div class = "flex flex-col w-4/5 md:w-2/3 gap-6 ml-auto mr-auto bg-white p-8 md:p-16 mt-10 border-2 rounded-lg items-center align-middle">
+    
+    <!--Top box with name and profile icon-->
+    <div class = "flex flex-row justify-between w-2/3">
+        <h1 class = "text-gray-500 text-3xl font-bold">My Profile: {{ user.username }}</h1>
+        <!--link to user_profile view-->
+        <a href = "{% url 'user-profile' username=user %}">
+        <span class="text-gray-500 hover:text-blue-400 text-4xl hover:cursor-pointer active:scale-95"><i class="bi-person-square"></i></span>
+        </a>
+    </div>
     <!--Div with account information-->
     <div class = "w-2/3 h-full flex flex-col gap-6">
 
         <!--Username-->
         <div class = "flex flex-row justify-between">
-            <h1 class = "text-gray-500 font-bold text-xl">Username: <span class = "text-gray-500 font-normal">testingtesting123</span></h1>
+            <h1 class = "text-gray-500 font-bold text-xl">Email: <span class = "text-gray-500 font-normal">{{ user.username }}</span></h1>
             <span class="text-gray-500 hover:text-blue-400 text-2xl hover:cursor-pointer active:scale-90"><i class="bi-pencil"></i></span>
         </div>
 
         <!--Password-->
         <div class = "flex flex-row justify-between">
-            <h1 class = "text-gray-500 font-bold text-xl">Password: <span class = "text-gray-500 font-normal">testingtesting123</span></h1>
+            <h1 class = "text-gray-500 font-bold text-xl">Username: <span class = "text-gray-500 font-normal">{{ user.email }}</span></h1>
             <span class="text-gray-500 hover:text-blue-400 text-2xl hover:cursor-pointer active:scale-90"><i class="bi-pencil"></i></span>
         </div>
 

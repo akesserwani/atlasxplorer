@@ -24,13 +24,32 @@
 
         {% if messages %}
           {% for message in messages %}
-            <div>
-              {{ message }}
-            </div>
+            <!--Div for Error message-->
+            {% if message.tags == "error" %}
+            <div id = "alert-div" class = "w-full h-16 bg-red-500 text-white text-xl p-4 flex flex-row justify-between align-middle">
+              <p>{{ message }}</p>
+                <span onclick = "hideDiv()" class="text-white text-xl hover:cursor-pointer mr-2"><i class="bi-x-lg"></i></span>
+              </div>
+            {% else %}
+              <!--Div for Success message-->
+              <div id = "alert-div" class = "w-full h-16 bg-green-500 text-white text-xl p-4 flex flex-row justify-between align-middle">
+                <p>{{ message }}</p>
+                <span onclick = "hideDiv()" class="text-white text-xl hover:cursor-pointer mr-2"><i class="bi-x-lg"></i></span>
+               </div>   
+            {% endif %}
+
           {% endfor %}
         {% endif %}
 
         {% block content %} {% endblock %}
 
   </body>
+
+  <script>
+    function hideDiv(){
+      let alert_div = document.getElementById("alert-div");
+      alert_div.parentNode.removeChild(alert_div);
+    }
+
+  </script>
 </html>

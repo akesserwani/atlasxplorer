@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--Include Navbar-->
+{% include 'shared/nav.html' %}
+
+{% load widget_tweaks %}
+
+
+<!--Main Container Body-->
+<div class = "w-full flex justify-center flex-col md:flex-row p-10 gap-2">
+    <!--Left Box with data-->
+        <div class = "w-full md:w-1/2 h-[65vh] flex flex-col align-middle bg-white border-2 rounded-lg overflow-auto">
+
+        <!--Hide Enter form if current user IS NOT logged in-->
+        {% if general_user.username == current_user %}
+
+        <form method="POST">
+            {% csrf_token %}
+                <!--header with exit button-->
+                <div class = "flex flex-row gap-4 w-full mt-6 ml-4">
+                    <a href = "{% url 'main-pin' general_user usermap.name pin.name %}">                    
+                        <span class="text-gray-500 text-3xl hover:cursor-pointer"><i class="bi-chevron-left"></i></span>
+                    </a>
+                    <h1 class = "text-gray-500 text-2xl">{{ pin.name }}</h1>
+                </div>
+    
+                <!--Top box with pin name and edit button-->
+                <h1 class = "text-gray-500 font-bold text-2xl m-6">Pin Name:</h1>
+                <div class = "w-2/3 h-16 m-6">
+                    <!--Enter Pin Name-->
+                    {% render_field form.name class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Pin Name" %}
+
+                </div>
+                <!--Coordinates-->
+                <div class = "flex flex-row justify-between">
+                    <div class = "flex flex-col gap-2 m-6">
+                        <h1 class = "text-gray-500 font-bold text-2xl">Coordinates:</h1>
+                        <!--Fields for Longitude and Latitude-->
+                        <div class = "h-16 flex flex-row gap-2">
+                            {% render_field form.lat class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Latitude" %}
+                            {% render_field form.long class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Longitude" %}
+                        </div>
+                    </div>    
+                </div>
+
+                <!--Notes-->
+                <div class = "flex flex-col gap-2 m-6">
+                    <h1 class = "text-gray-500 font-bold text-2xl">Notes</h1>
+                        {% render_field form.notes class="border-gray-300 border-2 rounded-lg w-full h-36 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Notes" %}
+                </div>
+                <br>
+                <!--Container for buttons-->
+                <div class = "flex flex-col justify-center align-middle items-center gap-8">                
+                    <!--Update Button-->
+                    <button type="submit" name = "update_pin_btn" class="active:scale-95 w-4/5 h-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-lg">
+                        Update Pin
+                    </button>
+            </form>
+       
+            <form method="POST" class = "w-4/5 h-12">
+                {% csrf_token %}
+                    <!--Delete Button-->
+                    <button type="submit" name = "delete_pin_btn" class="active:scale-95 w-full h-full rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-lg">
+                        Delete Pin
+                    </button>
+            </form>
+
+            </div><br><br>
+
+                <!--If user is not logged in, this message appears-->
+                {% else %}
+                    <div class = "w-full h-full flex-row text-center">
+                        <h1 class = "text-2xl text-gray-400 font-bold mt-32">Cannot Edit this Pin </h1>
+                    </div>
+
+                {% endif %}
+
+            </div>
+    <!--Right Box with map-->
+    <div class = "w-full md:w-1/2 h-[65vh] flex flex-col justify-center align-middle bg-white border-2 rounded-lg p-4">
+        <!--Map Container-->
+        <div class = "w-full h-full bg-blue-400 rounded-lg">
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
