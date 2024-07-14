@@ -9,13 +9,25 @@
 
 <!--Main Content-->
 
+<!--Make conditional - if map is private, and it is not current user logged in, they may not view it, else it is viewable-->
+{% if general_user.username != current_user and usermap.private %}
+
+    <h1 class = "text-center text-gray-600 mt-16 text-2xl font-bold">This map has been set to private</h1>
+
+{% else %}
+
   <!--Main Container Body-->
   <div class = "w-full flex justify-center flex-col md:flex-row p-10 gap-4">
     <!--Left Box - Top-->
     <!--My Maps-->
     <div class = "w-full md:w-1/2 h-[65vh] flex flex-col justify-center align-middle bg-white border-2 rounded-lg">
-        <!--Current User Being shown-->
-        <p1 class = "ml-10 mt-3 text-gray-400 text-base">{{ general_user.username }}'s maps</p1>
+        <!--If logged in, it shows my maps and directs to home page-->
+        {% if general_user.username == current_user %}
+            <a href="{% url 'main-home' %}" class = "ml-10 mt-3 text-gray-400 text-base hover:underline">My Maps</a>
+        {% else %}
+        <!--Else it shows name of user and directs to users profile -->
+            <a href="{% url 'user-profile' general_user %}" class = "ml-10 mt-3 text-gray-400 text-base hover:underline">{{ general_user.username }}'s Maps</a>
+        {% endif %}
 
         <!--Header-->
         <div class = "w-full flex flex-col h-1/5">
@@ -96,7 +108,14 @@
                     <form method="POST">
                     {% csrf_token %}
                         <button type = "submit" name = "toggleBookmark" class = "bg-blue-400 hover:bg-blue-500 active:scale-95 border w-16 h-16 rounded-lg relative bottom-4">
-                            <span class="text-white text-3xl hover:cursor-pointer active:scale-95 rounded-xl p-3"><i class="bi-bookmark"></i></span>
+                            <!--Change Icon based on whether map is bookmarked or not -->
+                            <!--If saved, icon is filled-->
+                            {% if is_bookmarked %}
+                                <span class="text-white text-3xl hover:cursor-pointer active:scale-95 rounded-xl p-3"><i class="bi-bookmark-fill"></i></span>
+                            {% else %}
+                                <!--If NOT saved, icon is NOT filled-->
+                                <span class="text-white text-3xl hover:cursor-pointer active:scale-95 rounded-xl p-3"><i class="bi-bookmark"></i></span>
+                            {% endif %}
                         </button>
                     </form>
                 </div>
@@ -105,7 +124,6 @@
 
         </div>
         
-        <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
     </div>
 
             <!--Container for entries-->
@@ -169,62 +187,129 @@
 <!--Javascript for Leaflet Map-->
 <script>
 
-//Main Tile Layer
-var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-});
+//function to calculate georgaphic center for a group of coordinate
+function calculateCenter(coords) {
+    let x = 0.0, y = 0.0, z = 0.0;
 
-//Satellite Imagery Layer
-var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-})
+    coords.forEach(coord => {
+        const latitude = coord.latitude * Math.PI / 180;
+        const longitude = coord.longitude * Math.PI / 180;
 
-var map = L.map('map', {
-    center: [ 38.715755604432346, -9.141667043719174],
-    zoom: 2,
-    layers: [osm, Esri_WorldImagery]
-});
-
-var baseMaps = {
-    "Normal": osm,
-    "Satellite": Esri_WorldImagery
-};
-
-//add layers to map
-var layerControl = L.control.layers(baseMaps).addTo(map);
-
-//create function for pins
-//six colors available: red, green, blue, orange, violet, yellow
-function customIcon(color, text, lat, long){
-    custom_icon = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-' + color + '.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
+        x += Math.cos(latitude) * Math.cos(longitude);
+        y += Math.cos(latitude) * Math.sin(longitude);
+        z += Math.sin(latitude);
     });
 
-    var marker = L.marker([lat, long], {icon: custom_icon}).addTo(map);
-    marker.bindTooltip(text, {permanent: true, direction: 'top', className: 'text-xl bottom-2 bg-opacity-0 text-gray-600' }).openTooltip();
-    return marker
+    const total = coords.length;
+
+    x = x / total;
+    y = y / total;
+    z = z / total;
+
+    const centralLongitude = Math.atan2(y, x);
+    const centralSquareRoot = Math.sqrt(x * x + y * y);
+    const centralLatitude = Math.atan2(z, centralSquareRoot);
+
+    return {
+        latitude: centralLatitude * 180 / Math.PI,
+        longitude: centralLongitude * 180 / Math.PI
+    };
 }
 
 
-document.addEventListener("DOMContentLoaded", function() {
-    const pinElements = document.querySelectorAll('.pin-name');
-    let pinsData = {};
+//generate map in event listener to get coords from HTML without having to call HTTP request
+function generateMap(){
+    document.addEventListener("DOMContentLoaded", function() {
+        const pinElements = document.querySelectorAll('.pin-name');
+        let pinsData = {};
+        const coordinates = [];
 
-    pinElements.forEach(pin => {
-        let pinName = pin.textContent;
-        let parentDiv = pin.closest('div');
-        let lat = parentDiv.querySelector('.lat').textContent;
-        let long = parentDiv.querySelector('.long').textContent;
+        //loop through the html to get pin data and add the the pinsData object
+        pinElements.forEach(pin => {
+            let pinName = pin.textContent.trim();  
+            let parentDiv = pin.closest('div');
+            let lat = parentDiv.querySelector('.lat').textContent.trim();
+            let long = parentDiv.querySelector('.long').textContent.trim(); 
 
-        customIcon("blue", pinName, lat, long);
+            pinsData[pinName] = {
+                latitude: parseFloat(lat),  
+                longitude: parseFloat(long)  
+            };
+            // Set default coordinates if lat or long are not valid numbers
+            let defaultLat = 34.0522;  // Default latitude, e.g., Los Angeles
+            let defaultLong = -118.2437;  // Default longitude, e.g., Los Angeles
+
+            // Check if lat and long are valid numbers, use defaults if not
+            lat = parseFloat(lat);
+            long = parseFloat(long);
+            if (isNaN(lat)) {
+                lat = defaultLat;
+            }
+            if (isNaN(long)) {
+                long = defaultLong;
+            }
+
+
+            //push coordinates into object to calculate centerpoint
+            coordinates.push({
+                latitude: parseFloat(lat), 
+                longitude: parseFloat(long)  
+            });
+
+        });
+
+        //generate map
+        //Main Tile Layer
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        });
+
+        //Satellite Imagery Layer
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        })
+
+        //generate a centerpoint to set map using calculateCenter() and the data from coordinates
+        const centroidGeo = calculateCenter(coordinates);
+
+        var map = L.map('map', {
+            center: [ centroidGeo.latitude, centroidGeo.longitude],
+            zoom: 6,
+            layers: [osm, Esri_WorldImagery]
+        })
+
+        var baseMaps = {
+            "Normal": osm,
+            "Satellite": Esri_WorldImagery
+        };
+
+        //add layers to map
+        var layerControl = L.control.layers(baseMaps).addTo(map);
+
+        //create function for pins
+        //six colors available: red, green, blue, orange, violet, yellow
+        function customIcon(color, text, lat, long){
+            custom_icon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-' + color + '.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41],
+            });
+
+            var marker = L.marker([lat, long], {icon: custom_icon}).addTo(map);
+            marker.bindTooltip(text, {permanent: true, direction: 'top', className: 'text-xl bottom-2 bg-opacity-0 text-gray-600' }).openTooltip();
+            return marker
+        }
+
+        //generate icons 
+        for (const [name, coords] of Object.entries(pinsData)) {
+            customIcon("blue", name, coords.latitude, coords.longitude);
+        }
+
     });
-
-});
-
+}
+generateMap();
 
 </script>
 
@@ -298,54 +383,57 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
     <!--script for creation map-->
     <script>
-        //start the code for intitializing the map
-        //Main Tile Layer
-        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-        });
+        function generateCreationMap(){
+            //start the code for intitializing the map
+            //Main Tile Layer
+            var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            });
 
-        //Satellite Imagery Layer
-        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        })
-
-
-        var map_create = L.map('map_create', {
-            center: [ 33.89332, 35.50157],
-            zoom: 12,
-            layers: [osm, Esri_WorldImagery]
-        });
-
-        var baseMaps = {
-            "Normal": osm,
-            "Satellite": Esri_WorldImagery
-        };
-
-        //add layers to map
-        var layerControl = L.control.layers(baseMaps).addTo(map);
-
-        //generate blue draggable pin
-        custom_icon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-        });
-
-        var marker_create = L.marker([33.89065, 35.47863], {
-            icon: custom_icon,
-            draggable: true
-
-        }).addTo(map_create);
-
-        //Dragging pin will change values in form
-        marker_create.on('dragend', function (e) {
-            document.getElementById('lat').value = marker_create.getLatLng().lat;
-            document.getElementById('long').value = marker_create.getLatLng().lng;
-        });
+            //Satellite Imagery Layer
+            var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            })
 
 
+            var map_create = L.map('map_create', {
+                center: [ 33.89332, 35.50157],
+                zoom: 12,
+                layers: [osm, Esri_WorldImagery]
+            });
+
+            var baseMaps = {
+                "Normal": osm,
+                "Satellite": Esri_WorldImagery
+            };
+
+            //add layers to map
+            var layerControl = L.control.layers(baseMaps).addTo(map_create);
+
+            //generate blue draggable pin
+            custom_icon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41],
+            });
+
+            var marker_create = L.marker([33.89065, 35.47863], {
+                icon: custom_icon,
+                draggable: true
+
+            }).addTo(map_create);
+
+            //Dragging pin will change values in form
+            marker_create.on('dragend', function (e) {
+                document.getElementById('lat').value = marker_create.getLatLng().lat;
+                document.getElementById('long').value = marker_create.getLatLng().lng;
+            });
+
+        }
+
+        generateCreationMap()
     </script>
 
 {% endif %}
@@ -371,6 +459,6 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
 </form>
 
-
+{% endif %}
 
 {% endblock content %}

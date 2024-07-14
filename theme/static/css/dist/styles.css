@@ -824,6 +824,10 @@ select {
   left: 0px;
 }
 
+.right-0 {
+  right: 0px;
+}
+
 .right-1 {
   right: 0.25rem;
 }
@@ -832,8 +836,16 @@ select {
   top: 0px;
 }
 
-.right-0 {
-  right: 0px;
+.bottom-5 {
+  bottom: 1.25rem;
+}
+
+.bottom-3 {
+  bottom: 0.75rem;
+}
+
+.bottom-8 {
+  bottom: 2rem;
 }
 
 .z-0 {
@@ -866,6 +878,10 @@ select {
 
 .ml-10 {
   margin-left: 2.5rem;
+}
+
+.ml-16 {
+  margin-left: 4rem;
 }
 
 .ml-2 {
@@ -944,8 +960,16 @@ select {
   margin-top: 2rem;
 }
 
-.ml-16 {
-  margin-left: 4rem;
+.mt-0 {
+  margin-top: 0px;
+}
+
+.mt-0\.5 {
+  margin-top: 0.125rem;
+}
+
+.mt-16 {
+  margin-top: 4rem;
 }
 
 .block {
@@ -1268,6 +1292,10 @@ select {
   --tw-bg-opacity: 0;
 }
 
+.bg-opacity-50 {
+  --tw-bg-opacity: 0.5;
+}
+
 .p-10 {
   padding: 2.5rem;
 }
@@ -1424,14 +1452,14 @@ select {
   color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
-.text-white {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
 .text-red-400 {
   --tw-text-opacity: 1;
   color: rgb(248 113 113 / var(--tw-text-opacity));
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .shadow {
@@ -1484,6 +1512,10 @@ select {
 .hover\:text-gray-600:hover {
   --tw-text-opacity: 1;
   color: rgb(75 85 99 / var(--tw-text-opacity));
+}
+
+.hover\:underline:hover {
+  text-decoration-line: underline;
 }
 
 .focus\:outline-none:focus {

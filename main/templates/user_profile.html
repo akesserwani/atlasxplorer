@@ -28,8 +28,16 @@
                 <a href = "{% url 'main-map' user.username map.name %}" class = "w-full">
                     <div class = "w-full border flex flex-row flex-wrap justify-between h-16 p-4 rounded-lg shadow bg-white hover:bg-gray-100 hover:cursor-pointer active:scale-95">
                         <h class = "text-lg font-bold text-gray-500">{{ map.name }}</h>
-                        <!--number of pins text-->
-                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins</p>
+
+                        <div class = "flex flex-row gap-2">
+                            <!--number of pins text-->
+                            <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins | </p>
+
+                            <!--Like Count-->
+                            <span class="text-gray-400"><i class="bi-heart-fill"></i></span>
+                            <p class = "text-base text-gray-400">{{ map.likes.count }}</p>
+                        </div> 
+
                     </div>
                 </a>
                 {% endif %}

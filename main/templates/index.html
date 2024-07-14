@@ -41,7 +41,13 @@
                             <span class="text-gray-400 hover:cursor-pointer"><i class="bi-eye-fill"></i></span>
                         {% endif %}
                         <!--number of pins text-->
-                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins</p>
+                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins |</p>
+
+                        <!--Like Count-->
+                        <div class = "flex flex-row gap-2">
+                            <span class="text-gray-400"><i class="bi-heart-fill"></i></span>
+                            <p class = "text-base text-gray-400">{{ map.likes.count }}</p>
+                        </div> 
                     </div>
                 </div>
             </a>
@@ -67,24 +73,21 @@
         </div>
 
             <!--Container for entries-->
-            <div class = "w-full h-3/4 p-6 flex flex-col gap-4 items-center align-middle overflow-auto mb-4"
-                x-data="{ places: [
-                { name: 'West Coast USA', pins: 121 },
-                { name: 'Middle East - Lebanon', pins: 151 },
-                { name: 'North Africa - Morocco', pins: 22 },
-                { name: 'North Afria - Morocco', pins: 22 },
-                { name: 'North Afca - Morocco', pins: 22 },
-            ]}">
+            <div class = "w-full h-3/4 p-6 flex flex-col gap-4 items-center align-middle overflow-auto mb-4">
                 <!--entry box-->
-                <template x-for="place in places" :key="place.name">
-                    <div class = "w-full border flex flex-row flex-wrap justify-between h-1/4 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
-                        <h class = "text-lg font-bold text-gray-500" x-text="place.name"></h>
-                        <p class = "text-base text-gray-400" x-text="place.pins + ' pins'"></p>
+                {% for saved in bookmarks %}
+                <a href = "{% url 'main-map' username=saved.creator map_name=saved.map_name %}" class = "w-full">
+                    <div class = "w-full border flex flex-row flex-wrap justify-between h-16 p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
+                        <h class = "text-lg font-bold text-gray-500">{{ saved.map_name }}</h>
+                        <!--Creator Name-->
+                        <p class = "text-sm text-gray-400">{{saved.creator}}</p>
                     </div>
-                </template>
+                </a>
+                {% endfor %}
             </div>
     </div>
 </div>
+
 
 
 <!--Modal for creating new map-->

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import UserMap, Pin
+from .models import UserMap, Pin, Bookmarks
 from users.forms import CreateMap, UpdateMap, CreatePin
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -42,7 +42,9 @@ def index(response):
         #get all of users maps
         'user_maps': UserMap.objects.all(),
         'form': form,
-        'current_user': current_user
+        'current_user': current_user,
+        'bookmarks': Bookmarks.objects.filter(user=response.user)
+
     }
 
     return render(response, 'index.html', context)
@@ -58,7 +60,6 @@ def map(request, username, map_name):
 
     #variable to get username from URL
     general_user = User.objects.get(username=username)
-    general_user_id = username
 
     #variable to get the current user
     user = User.objects.get(username=request.user)
@@ -69,10 +70,11 @@ def map(request, username, map_name):
 
     #get current likes from the map
     likers = selected_map.likes.all()  
-    #get list of usernames of people who have liked it
-    likers_usernames = ', '.join([user.username for user in likers]) 
     #like counts
     likes_count = likers.count()  
+
+    #check to see if current map is bookmarked or not
+    is_bookmarked = Bookmarks.objects.filter(user=request.user, creator = general_user, map_name=map_name).exists()
 
     #get pins of the selected user map to retrieve data 
     pins = Pin.objects.filter(usermap=selected_map)
@@ -149,11 +151,25 @@ def map(request, username, map_name):
 
     #function to toggle bookmark
     elif request.method == 'POST' and 'toggleBookmark' in request.POST:
-        #write these variables to the database IF it is not already in the database
+        #write the variables to the database IF it is not already in the database
+        #variables to be written are current user (request.user), creater of map (username), and map name (map_name)
+        if not is_bookmarked:
+            # If it does not exist then create new bookmark
+            new_bookmark = Bookmarks(user=request.user, creator=general_user, map_name=map_name)
+            new_bookmark.save()
 
-        print(general_user)
-        print(selected_map)
-        #if it is in the database, remove it
+            #generate success message
+            messages.success(request, f'"{map_name}" has been saved')
+        else:
+            #get existing bookmark
+            existing_bookmark = Bookmarks.objects.filter(user=request.user, creator=general_user, map_name=map_name).first()
+            existing_bookmark.delete()
+            # if the map already exists - throw an error
+            messages.error(request, f'"{map_name}" has been removed from Saved Maps')
+
+        #refresh page 
+        return redirect('main-map', username=general_user, map_name=map_name)
+
 
     #function to like map
     elif request.method == 'POST' and 'likeBtn' in request.POST:
@@ -182,7 +198,8 @@ def map(request, username, map_name):
         'pins': pins,
         'pins_all' : pins_all,
         'update_map_form': update_map_form,
-        'create_pin_form': create_pin_form
+        'create_pin_form': create_pin_form,
+        'is_bookmarked': is_bookmarked
     }
 
     return render(request, 'map.html', context)

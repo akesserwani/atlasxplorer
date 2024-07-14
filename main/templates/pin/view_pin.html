@@ -7,6 +7,12 @@
 
 {% load widget_tweaks %}
 
+<!--Make conditional - if map is private, and it is not current user logged in, they may not view it, else it is viewable-->
+{% if general_user.username != current_user and usermap.private %}
+
+    <h1 class = "text-center text-gray-600 mt-16 text-2xl font-bold">This pin has been set to private</h1>
+
+{% else %}
 
 <!--Main Container Body-->
 <div class = "w-full flex justify-center flex-col md:flex-row p-10 gap-4">
@@ -152,5 +158,7 @@ GoogleEarth(pinsData[0].latitude, pinsData[0].longitude);
 
 
 </script>
+
+{% endif %}
 
 {% endblock content %}
