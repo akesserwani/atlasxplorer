@@ -49,6 +49,6 @@ class UpdateMap(ModelForm):
 
 class CreatePin(forms.Form):
     name = forms.CharField(max_length=30, min_length=1)
-    lat = forms.IntegerField()
-    long = forms.IntegerField()
+    lat = forms.CharField()
+    long = forms.CharField()
     notes = forms.CharField(widget=forms.Textarea, max_length=1500, required=False) 

@@ -55,8 +55,10 @@ def search(request):
 #views not on navigation bar
 def map(request, username, map_name):
 
+
     #variable to get username from URL
     general_user = User.objects.get(username=username)
+    general_user_id = username
 
     #variable to get the current user
     user = User.objects.get(username=request.user)
@@ -64,6 +66,13 @@ def map(request, username, map_name):
 
     #get id of map and select pins
     selected_map = UserMap.objects.get(user=general_user, name=map_name)
+
+    #get current likes from the map
+    likers = selected_map.likes.all()  
+    #get list of usernames of people who have liked it
+    likers_usernames = ', '.join([user.username for user in likers]) 
+    #like counts
+    likes_count = likers.count()  
 
     #get pins of the selected user map to retrieve data 
     pins = Pin.objects.filter(usermap=selected_map)
@@ -134,9 +143,34 @@ def map(request, username, map_name):
                 messages.success(request, f'New pin "{pin_name}" created successfully.')
                 #redirect to the newly created view pin page
                 return redirect('main-pin', username=username, map_name=selected_map, pin_name= pin_name)
-            
+        
         else:
             create_pin_form = CreatePin(request.POST)
+
+    #function to toggle bookmark
+    elif request.method == 'POST' and 'toggleBookmark' in request.POST:
+        #write these variables to the database IF it is not already in the database
+
+        print(general_user)
+        print(selected_map)
+        #if it is in the database, remove it
+
+    #function to like map
+    elif request.method == 'POST' and 'likeBtn' in request.POST:
+        #if current users name is not in the database for likes
+
+        #if user has already liked the map, remove the like
+        if request.user in selected_map.likes.all():
+            #remove the like
+            selected_map.likes.remove(request.user)
+        else:
+            #add the like
+            selected_map.likes.add(request.user)
+
+        #save data
+        selected_map.save()
+        #refresh page
+        return redirect('main-map', username=general_user, map_name=map_name)
 
 
     #push current map data to view
@@ -144,6 +178,7 @@ def map(request, username, map_name):
         'usermap': selected_map,
         'current_user': username,
         'general_user': general_user,
+        'likes_count': likes_count,
         'pins': pins,
         'pins_all' : pins_all,
         'update_map_form': update_map_form,
@@ -221,7 +256,9 @@ def edit_pin(request, username, map_name, pin_name):
                 messages.success(request, f'Pin "{new_name}" updated successfully.')
                 #redirect to respective pins view page
                 return redirect('main-pin', username=general_user, map_name=usermap, pin_name= pin.name)
+            
         else:
+
             create_pin_form = CreatePin(request.POST, initial = initial_data) 
 
     #DELETE PIN

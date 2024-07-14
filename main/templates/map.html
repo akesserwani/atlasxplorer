@@ -84,14 +84,29 @@
                         </div>
                     </div>
                 </div>
+
+                <!--Else statement-->
+                <!--If does not belong to user, user may save the map-->
+                {% else %}
+                <div class = "flex flex-row gap-4">  
+                    <!-- number of pins on map -->
+                    <p class = "text-base text-gray-400 ml-10">{{ pins_all.count }} pins</p>
+
+                    <!--Save Map Button-->
+                    <form method="POST">
+                    {% csrf_token %}
+                        <button type = "submit" name = "toggleBookmark" class = "bg-blue-400 hover:bg-blue-500 active:scale-95 border w-16 h-16 rounded-lg relative bottom-4">
+                            <span class="text-white text-3xl hover:cursor-pointer active:scale-95 rounded-xl p-3"><i class="bi-bookmark"></i></span>
+                        </button>
+                    </form>
+                </div>
+
                 {% endif %}
 
         </div>
         
         <hr class = "border-1 w-[92%] border-gray-300 ml-auto mr-auto relative bottom-6">
     </div>
-            <!-- number of pins on map -->
-            <p class = "text-base text-gray-400 ml-10">{{ pins_all.count }} pins</p>
 
             <!--Container for entries-->
             <div class = "w-full h-3/4 p-6 flex flex-col gap-6 overflow-auto">
@@ -99,7 +114,14 @@
                 {% for pin in pins %}
                 <a href="{% url 'main-pin' general_user pin.usermap.name pin.name %}" class="w-full">
                     <div class = "w-full border flex flex-row flex-wrap justify-between h-full p-4 rounded-lg shadow hover:bg-gray-100 hover:cursor-pointer active:scale-95">
-                        <h class = "text-lg font-bold text-gray-500">{{ pin.name }}</h>
+                        <h class = "pin-name text-lg font-bold text-gray-500">{{ pin.name }}</h>
+
+                        <!--Div with Coordinates-->
+                        <div class = "flex flex-col text-sm text-gray-400">
+                            <p class = "lat">{{ pin.lat }}</p>
+                            <p class = "long">{{ pin.long }}</p>
+                        </div>
+
                     </div>
                 </a>
                 {% endfor %}
@@ -133,9 +155,9 @@
         </div>
 
         <!--Map Container-->
-        <div class = "w-full h-4/5 p-4">
+        <div class = "w-full h-4/5 p-4 z-0">
             <!--Map-->
-            <div class = "w-full h-full bg-blue-400 rounded-lg">
+            <div id = "map" class = "w-full h-full rounded-lg">
 
             </div>
 
@@ -144,7 +166,69 @@
     </div>
 </div>
 
+<!--Javascript for Leaflet Map-->
+<script>
 
+//Main Tile Layer
+var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+});
+
+//Satellite Imagery Layer
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+})
+
+var map = L.map('map', {
+    center: [ 38.715755604432346, -9.141667043719174],
+    zoom: 2,
+    layers: [osm, Esri_WorldImagery]
+});
+
+var baseMaps = {
+    "Normal": osm,
+    "Satellite": Esri_WorldImagery
+};
+
+//add layers to map
+var layerControl = L.control.layers(baseMaps).addTo(map);
+
+//create function for pins
+//six colors available: red, green, blue, orange, violet, yellow
+function customIcon(color, text, lat, long){
+    custom_icon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-' + color + '.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+    });
+
+    var marker = L.marker([lat, long], {icon: custom_icon}).addTo(map);
+    marker.bindTooltip(text, {permanent: true, direction: 'top', className: 'text-xl bottom-2 bg-opacity-0 text-gray-600' }).openTooltip();
+    return marker
+}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const pinElements = document.querySelectorAll('.pin-name');
+    let pinsData = {};
+
+    pinElements.forEach(pin => {
+        let pinName = pin.textContent;
+        let parentDiv = pin.closest('div');
+        let lat = parentDiv.querySelector('.lat').textContent;
+        let long = parentDiv.querySelector('.long').textContent;
+
+        customIcon("blue", pinName, lat, long);
+    });
+
+});
+
+
+</script>
+
+<!--Plus Button To Create New Map-->
 {% if general_user.username == current_user %}
 <!--Only show if the current user is logged in-->
 
@@ -152,7 +236,7 @@
     <!--Div to wrap button with add button-->
     <div x-data="{NewPointmodalIsOpen: false}">
         <!--Button Box on Bottom-->
-        <div class = "w-full h-32 fixed left-0 bottom-0">
+        <div class = "w-1/2 h-32 fixed right-0 bottom-0">
             <!--Right Button - Create map -->
             <button @click="NewPointmodalIsOpen = true" class = "aspect-square w-20 h-20 rounded-xl float-right mr-16 bg-blue-400 border-blue-600 shadow hover:bg-blue-500 active:scale-95">
                 <span class="text-white text-6xl"><i class="bi-plus"></i></span>
@@ -168,7 +252,7 @@
                     <!--Title and exit button-->
                     <div class = "flex flex-row justify-between p-4">
                         <!--Title-->
-                        <h class = "text-2xl md:text-3xl text-gray-500 font-bold mt-4 mr-2">Create New Pin</h>
+                        <h class = "text-2xl md:text-3xl text-gray-500 font-bold mt-4 mr-4">Create New Pin</h>
                         <!--Exit Button-->
                         <button class = "active:scale-90" @click="NewPointmodalIsOpen = false">
                             <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
@@ -179,14 +263,16 @@
                         <!--Left box with context-->
                         <div class = "w-full md:w-1/2 h-[70vh] flex flex-col align-middle justify-center">
                             <!--Move Pin Button, Enter Coordinates Button-->
-                            <form method="POST" class = "flex flex-col gap-8">
+                            <form method="POST" class = "flex flex-col gap-6">
                                 {% csrf_token %}
                                 <!--Name Form-->
                                 {% render_field create_pin_form.name class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Pin Name" %}
-                            
+
+                                <p class = "text-base md:text-lg text-gray-400 font-bold mt-4 mr-4">Drag to Pin to Select Coordinates or Enter Manually</p>
+
                                 <div class = "h-16 flex flex-row gap-2">
-                                    {% render_field create_pin_form.lat class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Latitude" %}
-                                    {% render_field create_pin_form.long class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Longitude" %}
+                                    {% render_field create_pin_form.lat id="lat" class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Latitude" %}
+                                    {% render_field create_pin_form.long id="long" class="border-gray-300 border-2 rounded-lg w-full py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" placeholder="Longitude" %}
                                 </div>
 
                                 <!--Notes Text area-->
@@ -201,7 +287,7 @@
                         <!--Right box with map-->
                         <div class = "w-full md:w-1/2 h-[70vh] flex flex-col justify-center align-middle">
                             <!--Map container-->
-                            <div class = "w-full h-2/3 bg-blue-400 rounded-lg">
+                            <div id = "map_create" class = "w-full h-full rounded-lg">
 
                             </div>
                         </div>
@@ -210,7 +296,81 @@
             </div>
         </div>
     </div>
+    <!--script for creation map-->
+    <script>
+        //start the code for intitializing the map
+        //Main Tile Layer
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        });
+
+        //Satellite Imagery Layer
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        })
+
+
+        var map_create = L.map('map_create', {
+            center: [ 33.89332, 35.50157],
+            zoom: 12,
+            layers: [osm, Esri_WorldImagery]
+        });
+
+        var baseMaps = {
+            "Normal": osm,
+            "Satellite": Esri_WorldImagery
+        };
+
+        //add layers to map
+        var layerControl = L.control.layers(baseMaps).addTo(map);
+
+        //generate blue draggable pin
+        custom_icon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+
+        var marker_create = L.marker([33.89065, 35.47863], {
+            icon: custom_icon,
+            draggable: true
+
+        }).addTo(map_create);
+
+        //Dragging pin will change values in form
+        marker_create.on('dragend', function (e) {
+            document.getElementById('lat').value = marker_create.getLatLng().lat;
+            document.getElementById('long').value = marker_create.getLatLng().lng;
+        });
+
+
+    </script>
 
 {% endif %}
+
+<!--Show like button on the left side-->
+<form method="POST">
+    {% csrf_token %}
+    <div class = "w-1/2 h-32 fixed left-0 bottom-0">
+        <!--Right Button - Create map -->
+        <button type = "submit" name = "likeBtn" class = "flex flex-row gap-4 align-middle justify-center items-center aspect-square w-28 h-20 rounded-xl float-left ml-16 bg-blue-400 border-blue-600 shadow hover:bg-blue-500 active:scale-95">
+            <!--Thumbs up icon-->
+            {% if request.user in usermap.likes.all %}
+                <!-- User has liked the map - filled thumbs-up icon -->
+                <span class="text-red-400 text-4xl"><i class="bi-heart-fill"></i></span>
+            {% else %}
+                <!-- User has not liked the map - regular thumbs-up icon -->
+                <span class="text-white text-4xl"><i class="bi-heart"></i></span>
+            {% endif %}
+        
+            <!--Current number of likes-->
+            <p class = "text-white text-xl">{{ likes_count }}</p>
+        </button>
+    </div>
+</form>
+
+
 
 {% endblock content %}
