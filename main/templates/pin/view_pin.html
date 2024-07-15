@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //start the code for intitializing the map
     //Main Tile Layer
-    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    var osm = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19
     });
 

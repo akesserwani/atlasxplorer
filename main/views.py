@@ -43,7 +43,8 @@ def index(response):
         'user_maps': UserMap.objects.all(),
         'form': form,
         'current_user': current_user,
-        'bookmarks': Bookmarks.objects.filter(user=response.user)
+        'bookmarks': Bookmarks.objects.filter(user=response.user),
+        'bookmarks_count': Bookmarks.objects.filter(user=response.user).count()
 
     }
 
@@ -51,6 +52,12 @@ def index(response):
 
 #search page functionality
 def search(request):
+    #get data from the search input once the search button is pressed
+
+    #once the search button has been pressed, search users database to find username that matches keywords closest
+
+    #output it with link to their profile
+
     return render(request, 'search.html')
 
 

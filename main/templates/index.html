@@ -41,7 +41,7 @@
                             <span class="text-gray-400 hover:cursor-pointer"><i class="bi-eye-fill"></i></span>
                         {% endif %}
                         <!--number of pins text-->
-                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pins |</p>
+                        <p class = "text-base text-gray-400">{{ map.pin.all.count }} pin(s) |</p>
 
                         <!--Like Count-->
                         <div class = "flex flex-row gap-2">
@@ -67,13 +67,17 @@
         <div class = "w-full flex flex-col">
             <div class = "w-full flex flex-row justify-between p-10">
                 <h class = "text-2xl font-bold text-gray-500">Saved Maps</h>
-                <p class = "text-base text-gray-600 mt-2">22 maps</p>
+                <p class = "text-base text-gray-600 mt-2">{{bookmarks_count}}</p>
             </div>
             <hr class = "border-1 w-[92%] border-gray-300 relative bottom-6 ml-auto mr-auto">
         </div>
 
             <!--Container for entries-->
             <div class = "w-full h-3/4 p-6 flex flex-col gap-4 items-center align-middle overflow-auto mb-4">
+                <!--show no saved maps only if bookmarks_count is 0 -->
+                {% if bookmarks_count == 0 %}
+                    <h1 class = "text-gray-400 text-xl font-bold">No Saved Maps</h1>
+                {% endif %}
                 <!--entry box-->
                 {% for saved in bookmarks %}
                 <a href = "{% url 'main-map' username=saved.creator map_name=saved.map_name %}" class = "w-full">

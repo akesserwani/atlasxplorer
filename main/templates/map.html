@@ -101,8 +101,6 @@
                 <!--If does not belong to user, user may save the map-->
                 {% else %}
                 <div class = "flex flex-row gap-4">  
-                    <!-- number of pins on map -->
-                    <p class = "text-base text-gray-400 ml-10">{{ pins_all.count }} pins</p>
 
                     <!--Save Map Button-->
                     <form method="POST">
@@ -154,22 +152,16 @@
     <!--Right Box - Bottom-->
     <!--Saved Maps-->
     <div class = "w-full md:w-1/2 h-[65vh] flex flex-col bg-white border-2 rounded-lg">
-        <!--Search Bar Container with share button -->
-        <div class = "w-full h-1/6 flex flex-row justify-between items-center align-middle gap-5">
-            <!--Search Bar-->
-            <div class = "w-2/3 h-2/3 flex flex-row ml-4">
-                <!--Input Form-->
-                <input class="border-gray-300 border-r-0 rounded-l-lg w-5/6 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" id="map_name" type="text" placeholder="Search Map">
-                <!--Search Button-->
-                <button class = "w-1/6 h-full bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-r-lg active:scale-95">
-                    <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-search"></i></span>
-                </button>
-            </div>
+        <!--Top Container for search button -->
+        <div class = "w-full h-1/6 flex flex-row justify-between items-center align-middle gap-5 p-4">
+
+            <!-- number of pins on map -->
+            <p class = "text-lg text-gray-400 ml-2">{{ pins_all.count }} pin(s)</p>
 
             <!--Only show share button if map is public-->
             {% if not usermap.private %}
             <!--Share Button-->
-            <button onclick = "copyClipboard()" class = "w-20 h-2/3 mr-4 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+            <button onclick = "copyClipboard()" class = "w-16 h-16 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
                 <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-share-fill"></i></span>
             </button>
             {% endif %}
@@ -268,7 +260,7 @@ function generateMap(){
 
         //generate map
         //Main Tile Layer
-        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        var osm = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19
         });
 
@@ -328,6 +320,7 @@ function generateMap(){
     });
 }
 generateMap();
+
 
 </script>
 
@@ -404,7 +397,7 @@ generateMap();
         function generateCreationMap(){
             //start the code for intitializing the map
             //Main Tile Layer
-            var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            var osm = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19
             });
 
