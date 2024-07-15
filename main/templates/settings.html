@@ -18,25 +18,82 @@
     <!--Div with account information-->
     <div class = "w-2/3 h-full flex flex-col gap-6">
 
-        <!--Username-->
+        <!--Email-->
         <div class = "flex flex-row justify-between">
             <h1 class = "text-gray-500 font-bold text-xl">Email: <span class = "text-gray-500 font-normal">{{ user.username }}</span></h1>
-            <span class="text-gray-500 hover:text-blue-400 text-2xl hover:cursor-pointer active:scale-90"><i class="bi-pencil"></i></span>
+            <!--Edit Email and its respective modal-->
+            <div x-data="{EditEmailModel: false}">
+                <!--Edit Email Icon-->
+                <span  @click="EditEmailModel = true" class="text-gray-500 hover:text-blue-400 text-2xl hover:cursor-pointer active:scale-90"><i class="bi-pencil"></i></span>
+                    <!--Model Begins here-->
+                    <!--Opacity Layer-->
+                    <div x-cloak x-show="EditEmailModel" @click.self="EditEmailModel = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
+                        <!--Modal Dialogue layer-->
+                        <div x-show="EditEmailModel" class = "w-4/5 md:w-1/2 h-1/2 flex flex-col align-middle items-center gap-4 rounded-xl border-2 bg-white">
+                            <div class = " h-full w-[90%]">
+                                <!--Title and exit button-->
+                                <div class = "flex flex-row justify-between p-8">
+                                    <!--Title-->
+                                    <h class = "text-2xl md:text-3xl text-gray-500 font-bold">Change Email</h>
+                                    <!--Exit Button-->
+                                    <button class = "active:scale-90" @click="EditEmailModel = false">
+                                        <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
+                                    </button>
+                                </div>
+                                <!--Main modal content-->
+                                <div class = "w-full h-full flex flex-col pl-8 pr-4 pb-8 gap-2">
+
+                                    <!--Content goes here-->
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
         </div>
 
         <!--Password-->
         <div class = "flex flex-row justify-between">
             <h1 class = "text-gray-500 font-bold text-xl">Username: <span class = "text-gray-500 font-normal">{{ user.email }}</span></h1>
-            <span class="text-gray-500 hover:text-blue-400 text-2xl hover:cursor-pointer active:scale-90"><i class="bi-pencil"></i></span>
         </div>
 
-        <!--Change password button-->
-        <button type="button" class="active:scale-95 w-full lg:w-1/3 h-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-base lg:text-lg">
-            Change Password
-        </button>
+        <!--Change Password Button and its respective modal-->
+        <div x-data="{ChangePasswordModel: false}">
+                <!--Change password button-->
+                <button @click ="ChangePasswordModel = true" type="button" class="active:scale-95 w-full lg:w-1/3 h-12 rounded-lg border border-transparent font-semibold bg-blue-400 text-white hover:bg-blue-600 text-base lg:text-lg">
+                    Change Password
+                </button>
+                <!--Model Begins here-->
+                <!--Opacity Layer-->
+                <div x-cloak x-show="ChangePasswordModel" @click.self="ChangePasswordModel = false"  class = "fixed inset-0 z-30 flex justify-center items-center bg-black/20 backdrop-blur-md">
+                    <!--Modal Dialogue layer-->
+                    <div x-show="ChangePasswordModel" class = "w-4/5 md:w-1/2 h-1/2 flex flex-col align-middle items-center gap-4 rounded-xl border-2 bg-white">
+                        <div class = " h-full w-[90%]">
+                            <!--Title and exit button-->
+                            <div class = "flex flex-row justify-between p-8">
+                                <!--Title-->
+                                <h class = "text-2xl md:text-3xl text-gray-500 font-bold">Change Password</h>
+                                <!--Exit Button-->
+                                <button class = "active:scale-90" @click="ChangePasswordModel = false">
+                                    <span class="text-gray-500 hover:text-gray-600 hover:cursor-pointer text-2xl"><i class="bi-x-lg"></i></span>
+                                </button>
+                            </div>
+                            <!--Main modal content-->
+                            <div class = "w-full h-full flex flex-col pl-8 pr-4 pb-8 gap-2">
+
+                                <!--Content goes here-->
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        
 
         <!--Delete Account button-->
-        <button type="button" class="active:scale-95 w-full lg:w-1/3 h-12 rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-base lg:text-lg">
+        <button type="button" onclick="return confirm('Are you sure you want to delete your account? If deleted, it cannot be reactivated and all your maps and pins will be lost.');" class="active:scale-95 w-full lg:w-1/3 h-12 rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-base lg:text-lg">
             Delete Account
         </button>
 
@@ -45,5 +102,6 @@
 
 
 </div>
+
 
 {% endblock content %}

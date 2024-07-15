@@ -25,7 +25,7 @@
                     <span class="hover:text-blue-400 hover:cursor-pointer {% if request.path == '/settings/' %} text-blue-500 text-5xl {% endif %}"><i class="bi-gear"></i></span>
                 </a>
                 <!--Log out Icon-->
-                <a class = "active:scale-90" href="{% url 'logout' %}">
+                <a class = "active:scale-90" href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">
                     <span class="hover:text-blue-400 hover:cursor-pointer"><i class="bi-box-arrow-right"></i></span>
                 </a>
             </div>
@@ -45,7 +45,7 @@
 		<li class="py-4"><a href="{% url 'main-home' %}" class="w-full active:scale-95 {% if request.path == '/' %} text-blue-500 text-3xl {% endif %} ">Home</a></li>
 		<li class="py-4"><a href="{% url 'main-search' %}" class="w-full active:scale-95 {% if request.path == '/search/' %} text-blue-500 text-3xl {% endif %}">Search</a></li>
 		<li class="py-4"><a href="{% url 'main-settings' %}" class="w-full active:scale-95 {% if request.path == '/settings/' %} text-blue-500 text-3xl {% endif %}">Settings</a></li>
-		<li class="py-4"><a href="{% url 'logout' %}" class="w-full active:scale-95 text-blue-500 text-3xl">Logout</a></li>
+		<li class="py-4"><a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');" class="w-full active:scale-95 text-blue-500 text-3xl">Logout</a></li>
 	</ul>
 
 </nav>

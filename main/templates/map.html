@@ -43,12 +43,12 @@
                     {% csrf_token %}
                     <div class = "flex flex-row gap-4">
                         {% if usermap.private == True %}
-                            <button type="submit" name = "togglePrivate" >
+                            <button type="submit" name = "togglePrivate" onclick="return confirm('Set the map to public and allow it to be viewed by others?');">
                                 <span class="text-gray-500 text-3xl hover:cursor-pointer"><i class="bi-eye-slash-fill"></i></span>
                             </button>
                         {% else %}
                             <!--Eye icon does not have slash if private is false meaning it is public-->
-                            <button type="submit" name = "togglePrivate" >
+                            <button type="submit" name = "togglePrivate" onclick="return confirm('Set the map to private?');">
                                 <span class="text-gray-500 text-3xl hover:cursor-pointer"><i class="bi-eye-fill"></i></span>
                             </button>
                         {% endif %}
@@ -86,7 +86,7 @@
                                             </button>            
 
                                             <!--Delete Map Button-->
-                                            <button type="submit" name = "deleteMap" class="active:scale-95 w-full h-12 mt-2 xl:mt-12 rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-lg">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this map? It cannot be recovered.');" name = "deleteMap" class="active:scale-95 w-full h-12 mt-2 xl:mt-12 rounded-lg border border-transparent font-semibold bg-red-400 text-white hover:bg-red-600 text-lg">
                                                 Delete Map
                                             </button>            
                                         </form>
@@ -166,17 +166,19 @@
                 </button>
             </div>
 
+            <!--Only show share button if map is public-->
+            {% if not usermap.private %}
             <!--Share Button-->
-            <button class = "w-20 h-2/3 mr-4 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+            <button onclick = "copyClipboard()" class = "w-20 h-2/3 mr-4 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
                 <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-share-fill"></i></span>
             </button>
+            {% endif %}
         </div>
 
         <!--Map Container-->
         <div class = "w-full h-4/5 p-4 z-0">
             <!--Map-->
             <div id = "map" class = "w-full h-full rounded-lg">
-
             </div>
 
         </div>
@@ -184,9 +186,25 @@
     </div>
 </div>
 
+<!--General Javascript-->
+<script>
+    //create dummy element to hold URL then copy to clipboard
+    function copyClipboard(){
+        var dummy = document.createElement('input'),
+        text = window.location.href;
+
+        document.body.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+
+        alert("Public map URL has been copied")
+    }
+
+</script>
 <!--Javascript for Leaflet Map-->
 <script>
-
 //function to calculate georgaphic center for a group of coordinate
 function calculateCenter(coords) {
     let x = 0.0, y = 0.0, z = 0.0;
@@ -223,6 +241,10 @@ function generateMap(){
         const pinElements = document.querySelectorAll('.pin-name');
         let pinsData = {};
         const coordinates = [];
+            // Set default coordinates if lat or long are not valid numbers
+            let defaultLat = 34.0522;  
+            let defaultLong = -118.2437; 
+
 
         //loop through the html to get pin data and add the the pinsData object
         pinElements.forEach(pin => {
@@ -235,21 +257,6 @@ function generateMap(){
                 latitude: parseFloat(lat),  
                 longitude: parseFloat(long)  
             };
-            // Set default coordinates if lat or long are not valid numbers
-            let defaultLat = 34.0522;  // Default latitude, e.g., Los Angeles
-            let defaultLong = -118.2437;  // Default longitude, e.g., Los Angeles
-
-            // Check if lat and long are valid numbers, use defaults if not
-            lat = parseFloat(lat);
-            long = parseFloat(long);
-            if (isNaN(lat)) {
-                lat = defaultLat;
-            }
-            if (isNaN(long)) {
-                long = defaultLong;
-            }
-
-
             //push coordinates into object to calculate centerpoint
             coordinates.push({
                 latitude: parseFloat(lat), 
@@ -257,6 +264,7 @@ function generateMap(){
             });
 
         });
+
 
         //generate map
         //Main Tile Layer
@@ -269,11 +277,21 @@ function generateMap(){
         })
 
         //generate a centerpoint to set map using calculateCenter() and the data from coordinates
-        const centroidGeo = calculateCenter(coordinates);
+        let latitude_var;
+        let longitude_var;
+        if (coordinates.length < 1){
+             latitude_var = 34.0522;
+             longitude_var = -118.2437;
+        } else{
+             centroidGeo = calculateCenter(coordinates);
+             latitude_var = centroidGeo.latitude;
+             longitude_var = centroidGeo.longitude;
+        }
+
 
         var map = L.map('map', {
-            center: [ centroidGeo.latitude, centroidGeo.longitude],
-            zoom: 6,
+            center: [ latitude_var, longitude_var],
+            zoom: 5,
             layers: [osm, Esri_WorldImagery]
         })
 
