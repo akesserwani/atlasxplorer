@@ -26,25 +26,16 @@
         </div>
 
         <!--Container with search results-->
-        <div class = "w-full h-auto flex flex-col gap-4 text-gray-500 text-lg overflow-auto"
-            x-data="{ users: [
-                { id: 1, name: 'User 1' },
-                { id: 2, name: 'User 2' },
-                { id: 3, name: 'User 3' },
-                { id: 4, name: 'User 4' },
-                { id: 5, name: 'User 5' },
-                { id: 6, name: 'User 6' },
-                { id: 7, name: 'User 7' },
-                { id: 8, name: 'User 1' },
-                { id: 9, name: 'User 1' },
-
-            ]}">
+        <div class = "w-full h-auto flex flex-col gap-4 text-gray-500 text-lg overflow-auto">
+          
             <!--User from search-->
-            <template x-for="user in users" :key="user.id">
+            <!--Create loop here-->
+            <a href = "#">
                 <div class = "w-full p-4 hover:bg-gray-100 cursor-pointer rounded-lg active:scale-95">
-                    <h1 class = "text-lg font-bold text-gray-500" x-text="user.name"></h1>
+                    <h1 class = "text-lg font-bold text-gray-500">User 1</h1>
                 </div>
-            </template>
+            </a>
+
         </div>
 
     </div>
