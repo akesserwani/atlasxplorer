@@ -52,13 +52,15 @@ def index(response):
 
 #search page functionality
 def search(request):
-    #get data from the search input once the search button is pressed
+    query = ''
+    users = User.objects.none()
+    
+    if request.method == 'POST':
+        query = request.POST.get('q', '')
+        if query:
+            users = User.objects.filter(username__icontains=query)
 
-    #once the search button has been pressed, search users database to find username that matches keywords closest
-
-    #output it with link to their profile
-
-    return render(request, 'search.html')
+    return render(request, 'search.html', {'users': users, 'query': query})
 
 
 #views not on navigation bar
@@ -310,10 +312,12 @@ def edit_pin(request, username, map_name, pin_name):
 
 
 #settings page functionality
+@login_required
 def settings(request):
     return render(request, 'settings.html')
 
 #user profile page
+@login_required
 def user_profile(request, username):
 
     #load general user

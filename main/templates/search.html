@@ -2,45 +2,50 @@
 
 {% block content %}
 
-<!--Include Navbar-->
+<!-- Include Navbar -->
 {% include 'shared/nav.html' %}
 
-<!--Main container div-->
-<div class = "w-full h-full flex flex-col">
-        
-    <!--Div with search results-->
-    <div class = "flex flex-col w-4/5 md:w-1/2 gap-6 ml-auto mr-auto bg-white p-8 mt-10 border-2 rounded-lg items-center align-middle">
-        <!--Search Bar-->
-        <div class = "w-full h-2/3 flex flex-row ml-4">
-            <!--Input Form-->
-            <input class="border-gray-300 border-r-0 rounded-l-lg w-5/6 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" id="map_name" type="text" placeholder="Search Users">
-            <!--Search Button-->
-            <button class = "w-1/6 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-r-lg active:scale-95 relative right-1">
-                <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-search"></i></span>
-            </button>
-        </div>
-        
-        <!--number of results for input-->
-        <div class = "w-full relative bottom-2 pl-4">
-            <h1 class = "text-gray-500 text-base">Results for account: bob123456</h1>
+<!-- Main container div -->
+<div class="w-full h-full flex flex-col">
+    <!-- Div with search results -->
+    <div class="flex flex-col w-4/5 md:w-1/2 gap-6 ml-auto mr-auto bg-white p-8 mt-10 border-2 rounded-lg items-center align-middle">
+        <!-- Search Bar -->
+        <div class="w-full h-2/3 flex flex-row ml-4">
+            <form method="POST" class="w-full flex flex-row">
+                {% csrf_token %}
+                <!-- Input Form -->
+                <input class="border-gray-300 border-r-0 rounded-l-lg w-5/6 py-4 bg-slate-100 text-gray-600 focus:outline-none focus:shadow-outline" 
+                       id="map_name" name="q" type="text" placeholder="Search Users">
+                <!-- Search Button -->
+                <button type="submit" class="w-1/6 bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-r-lg active:scale-95 relative right-1">
+                    <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-search"></i></span>
+                </button>
+            </form>
         </div>
 
-        <!--Container with search results-->
-        <div class = "w-full h-auto flex flex-col gap-4 text-gray-500 text-lg overflow-auto">
-          
-            <!--User from search-->
-            <!--Create loop here-->
-            <a href = "#">
-                <div class = "w-full p-4 hover:bg-gray-100 cursor-pointer rounded-lg active:scale-95">
-                    <h1 class = "text-lg font-bold text-gray-500">User 1</h1>
-                </div>
-            </a>
-
+        <!-- Number of results for input -->
+        <div class="w-full relative bottom-2 pl-4">
+            {% if query %}
+                <h1 class="text-gray-500 text-base">Results for account: {{ query }}</h1>
+            {% endif %}
         </div>
 
+        <!-- Container with search results -->
+        <div class="w-full h-auto flex flex-col gap-4 text-gray-500 text-lg overflow-auto">
+            <!-- User from search -->
+            {% if users %}
+                {% for user in users %}
+                    <a href="{% url 'user-profile' user.username %}">
+                        <div class="w-full p-4 hover:bg-gray-100 cursor-pointer rounded-lg active:scale-95">
+                            <h1 class="text-lg font-bold text-gray-500">{{ user.username }}</h1>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p class = "text-center mt-4">No users found</p>
+            {% endif %}
+        </div>
     </div>
-
-
 </div>
 
 {% endblock content %}
