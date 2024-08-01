@@ -48,10 +48,10 @@ if not DEBUG:    # Tell Django to copy static assets into a path called `staticf
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    "/var/www/static/",
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+#     "/var/www/static/",
+# ]
 
 
 # Application definition
