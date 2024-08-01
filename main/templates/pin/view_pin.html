@@ -53,7 +53,7 @@
                 </div>
             </div>    
             <!--Google Earth Button-->
-            <button onclick = "GoogleEarth()" name = "editPinBtn" class = "mr-6 mt-6 w-16 h-16 aspect-square bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
+            <button id="googleEarthBtn" class = "mr-6 mt-6 w-16 h-16 aspect-square bg-blue-400 hover:bg-blue-500 border-blue-400 rounded-lg active:scale-95">
                 <span class="text-white text-3xl hover:cursor-pointer"><i class="bi-google"></i></span>
             </button>
 
@@ -143,18 +143,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //generate icon 
     customIcon("blue", pinsData[0].latitude, pinsData[0].longitude)
+    
+
+    //Add event lister to google earth button 
+    googleEarthBtn.addEventListener('click', function() {
+            GoogleEarth(pinsData[0].latitude, pinsData[0].longitude);
+    });
+
 
 });
 
 //function to open in Google Earth
 function GoogleEarth(lat, long){
     //open link in google earth
-    window.open("https://earth.google.com/web/@" + lat + "," + long + ",1000d" , '_blank').focus();
+    window.open("https://earth.google.com/web/@" + lat+ "," + long + ",40000d" , '_blank').focus();
 
 }
 
-//generate google earth link
-GoogleEarth(pinsData[0].latitude, pinsData[0].longitude);
+
+
 
 
 </script>

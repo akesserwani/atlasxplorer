@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import UserMap, Pin, Bookmarks
-from users.forms import CreateMap, UpdateMap, CreatePin
+from users.forms import CreateMap, UpdateMap, CreatePin, UpdateEmail, ChangePassword, AccountDeletionForm
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth import update_session_auth_hash, logout
 
 #navigation bar views
 @login_required
@@ -314,7 +315,69 @@ def edit_pin(request, username, map_name, pin_name):
 #settings page functionality
 @login_required
 def settings(request):
-    return render(request, 'settings.html')
+
+    #Change Email Form
+    emailForm = UpdateEmail(initial={'email': request.user.email})
+    #Change Password Form
+    changePasswordForm = ChangePassword(user=request.user)
+    #Delete Account form ( password confirmation)
+    deleteAccountForm = AccountDeletionForm(user=request.user)
+
+    #Post Requests for dealing with reseting user data
+    #Change Email 
+    if request.method == 'POST' and 'change_email_btn' in request.POST:
+        emailForm = UpdateEmail(request.POST, instance=request.user)
+
+        if emailForm.is_valid():
+            #get contents of the email
+            new_email = emailForm.cleaned_data.get('email')
+            #set it to users email 
+            request.user.email = new_email
+            #save in database
+            request.user.save()
+
+            #return success message
+            messages.success(request, 'Email Successfully Changed')
+
+    #Change Password
+    elif request.method == 'POST' and 'change_password_btn' in request.POST:
+        changePasswordForm = ChangePassword(user=request.user, data=request.POST)
+        if changePasswordForm.is_valid():
+            #get new password
+            new_password = changePasswordForm.cleaned_data.get('new_password')
+            #set and save
+            request.user.set_password(new_password)
+            request.user.save()
+
+            # Update the session with the new password to avoid logout
+            update_session_auth_hash(request, request.user)
+
+            #return success message
+            messages.success(request, 'Password Successfully Changed')
+
+    #Delete Account
+    elif request.method == 'POST' and 'delete_user_btn' in request.POST:
+        deleteAccountForm = AccountDeletionForm(user=request.user, data=request.POST)
+        
+        if deleteAccountForm.is_valid():
+            # Delete the user account
+            request.user.delete()
+            # Log the user out
+            logout(request)
+
+            messages.error(request, "Your account has been deleted. We are sad to see you go.")
+
+            return redirect('register') 
+
+
+    #render forms into the view
+    context = {
+        'emailForm': emailForm,
+        'changePasswordForm': changePasswordForm,
+        'deleteAccountForm': deleteAccountForm
+    }
+
+    return render(request, 'settings.html', context)
 
 #user profile page
 @login_required
