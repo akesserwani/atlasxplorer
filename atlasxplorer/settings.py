@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0f%49kinp8##0(xh%pbcoyg3r-d0&0^i#mj)(2prgpjb@)tbx='
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(" ")
 
 #stuff for tailwind configuration
 TAILWIND_APP_NAME = 'theme'
@@ -107,8 +107,9 @@ WSGI_APPLICATION = 'atlasxplorer.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+database_url = os.environ.get("DATABASE_URL")
 DATABASES = {
-    'default': dj_database_url.config(default='postgresql://atlasxplorerdb_user:KHgPtd6LIfxGO0zifvV1g42WrGeuaQZR@dpg-cqlnqmg8fa8c73b7o8ug-a.oregon-postgres.render.com/atlasxplorerdb', conn_max_age=600)
+    'default': dj_database_url.parse(database_url)
  }
 
 
